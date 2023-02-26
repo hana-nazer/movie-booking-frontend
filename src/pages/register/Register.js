@@ -1,16 +1,29 @@
 import React from "react";
-import { Form } from "antd";
+import { Form, message } from "antd";
 import Button from "../../components/Button";
 import { Link } from "react-router-dom";
+import { RegisterUser } from "../../apicalls/users";
 
 function Register() {
-  const onFinish = (values) => {
-    console.log("Succes", values);
+  const onFinish = async (values) => {
+    try {
+      const response = await RegisterUser(values);
+      if (response.sucess) {
+        message.success(response.message);
+        
+        console.log(message.success(response.message));
+       
+      } else {
+        message.error(response.message);
+      }
+    } catch (error) {
+      message.error(error.message);
+    }
   };
   return (
     <div className="flex justify-center h-screen items-center bg-primary">
       <div className="card p-3  W-400">
-        <h1 className="text-xl mb-1">Book My Movie  -Register</h1>
+        <h1 className="text-xl mb-1">Book My Movie -Register</h1>
         <hr />
         <Form layout="vertical" className="mt-1" onFinish={onFinish}>
           <Form.Item
@@ -35,7 +48,7 @@ function Register() {
             <input type="password" />
           </Form.Item>
           <div className="mt-2 gap-1 flex flex-col">
-            <Button title="REGISTER" type="submit" />
+            <Button title="REGISTER" htmlType="submit" />
             <Link to="/login" className="text-primary mt-1">
               Already have an account?Login
             </Link>

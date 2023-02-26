@@ -1,10 +1,24 @@
-import React from 'react'
-import { Form } from "antd";
+import React from "react";
+import { Form, message } from "antd";
 import Button from "../../components/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { LoginUser } from "../../apicalls/users";
 function Login() {
-  const onFinish = (values) => {
-    console.log("Succes", values);
+  const navigate = useNavigate();
+  const onFinish = async (values) => {
+    try {
+      const response = await LoginUser(values);
+      if (response.sucess) {
+        message.success(response.message);
+        localStorage.setItem("token", response.data);
+        
+        navigate("/");
+      } else {
+        message.error(response.message);
+      }
+    } catch (error) {
+      message.error(error.message);
+    }
   };
   return (
     <div className="flex justify-center h-screen items-center bg-primary">
@@ -12,7 +26,6 @@ function Login() {
         <h1 className="text-xl mb-1">Book My Movie-Login</h1>
         <hr />
         <Form layout="vertical" className="mt-1" onFinish={onFinish}>
-          
           <Form.Item
             label="Email"
             name="email"
@@ -36,7 +49,7 @@ function Login() {
         </Form>
       </div>
     </div>
-  )
+  );
 }
 
-export default Login
+export default Login;
