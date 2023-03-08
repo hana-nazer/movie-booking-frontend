@@ -3,11 +3,19 @@ import { Form, message } from "antd";
 import Button from "../../components/Button";
 import { Link } from "react-router-dom";
 import { RegisterUser } from "../../apicalls/users";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { hideLoading, showLoading } from "../../redux/loaders-slice";
 
 function Register() {
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
   const onFinish = async (values) => {
     try {
+      dispatch(showLoading())
       const response = await RegisterUser(values);
+      dispatch(hideLoading())
       if (response.success) {
         message.success(response.message);
         
@@ -16,9 +24,16 @@ function Register() {
         message.error(response.message);
       }
     } catch (error) {
+      dispatch(hideLoading())
       message.error(error.message);
     }
   };
+
+  useEffect(()=>{
+    if(localStorage.getItem('token')){
+      navigate('/')
+    }
+  })
   return (
     <div className="flex justify-center h-screen items-center bg-primary">
       <div className="card p-3  W-400">

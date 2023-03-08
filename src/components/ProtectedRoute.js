@@ -1,29 +1,48 @@
 import { message } from "antd";
-import React, { useState, useEffect } from "react";
+import React, {useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {  useNavigate } from "react-router-dom";
 import { GetCurrentUser } from "../apicalls/users";
+import { hideLoading, showLoading } from "../redux/loaders-slice";
+import { setUser } from "../redux/usersSlice";
 
 function ProtectedRoute(props) {
-  const [user, setUser] = useState("");
+  const navigate = useNavigate()
+  const { user } = useSelector((state) => state.users);
+  const dispatch = useDispatch();
   const getCurrentUser = async () => {
     try {
+      dispatch(showLoading())
       const response = await GetCurrentUser();
+      dispatch(hideLoading())
       if (response.success) {
-        setUser(response.data);
+        dispatch(setUser(response.data));
       } else {
-        setUser(null);
+        dispatch(setUser(null));
         message.error(response.message);
       }
     } catch (error) {
-      setUser(null);
+      dispatch(hideLoading())
+      dispatch(setUser(null));
       message.error(error.message);
     }
   };
   useEffect(() => {
-    getCurrentUser();
-  }, []);
-  return user && <div>
-    {user.name}
-    {props.children}</div>;
+    if(localStorage.getItem('token')){
+      getCurrentUser();
+
+    }else{
+    navigate('/login')
+    }
+  });
+  return (
+    user && (
+      <div>
+        {user.name}
+        {props.children}
+      </div>
+    )
+  );
 }
 
 export default ProtectedRoute;
